@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+
+    environment {
+        APP_NAME = "gitops-argo-app"
+    
+    }
+    stages {
+        stage ('CleanUp') {
+            steps{
+                script {
+                    cleanWs()
+                }
+            }
+        }
+        stage('Checkout from SCM') {
+            steps {
+                script {
+                    git credentialsId: 'GitHub',
+                    url: 'https://github.com/iyalkeerthana/gitops-argocd-cd.git',
+                    branch: 'main'   
+                }
+            }
+        }
+       
+        stage('Updating K8s Deployment file') {
+            steps {
+                script {
+                    sh """
+                    cat deployment.yml
+                    sed -i 's/${APP_NAME}.*/${APP_NAME}:${IMAGE_TAG}/g' deployment.yml
+                    cat deployment.yml
+                    """
+
+                }
+            }
+        }
+        stage('Push the changed deployment file to Git') {
+            steps {
+                script {
+                    sh """
+                        git config --global user.name "iyalkeerthana"
+                        git config --global user.email "kavikeerthana2326@gmail.com"
+                        git add deployment.yml
+                        git commit -m "updated the deployment yml file"
+                    """
+                    withCredentials([gitUsernamePassword(credentialsId: 'GitHub', gitToolName: 'Default')]) {
+    // some block
+                    sh "https://github.com/iyalkeerthana/gitops-argocd-cd.git main"
+                    }
+                }
+            }
+        }
+    }
+}
+
+

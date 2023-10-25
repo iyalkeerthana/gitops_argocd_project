@@ -50,34 +50,15 @@ pipeline {
                 }
             }
         }
-        stage('Updating K8s Deployment file') {
+        stage('trigger CD Pipeline') {
             steps {
                 script {
-                    sh """
-                    cat deployment.yml
-                    sed -i 's/${APP_NAME}.*/${APP_NAME}:${IMAGE_TAG}/g' deployment.yml
-                    cat deployment.yml
-                    """
+                    sh "curl -v -k -u admin:1116d22b328716f7e5806807031448f5f0 -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded' -data 'IMAGE_TAG=${IMAGE_TAG}' 'http://43.205.209.23:8090/job/gitops-argocd-cd/buildWithParameters?token=gitops-config'"
 
                 }
             }
         }
-        stage('Push the changed deployment file to Git') {
-            steps {
-                script {
-                    sh """
-                        git config --global user.name "iyalkeerthana"
-                        git config --global user.email "kavikeerthana2326@gmail.com"
-                        git add deployment.yml
-                        git commit -m "updated the deployment yml file"
-                    """
-                    withCredentials([gitUsernamePassword(credentialsId: 'GitHub', gitToolName: 'Default')]) {
-    // some block
-                    sh "git push https://github.com/iyalkeerthana/gitops_argocd_project.git main"
-                    }
-                }
-            }
-        }
+           
     }
 }
 
