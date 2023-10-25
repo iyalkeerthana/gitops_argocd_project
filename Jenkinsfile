@@ -62,6 +62,22 @@ pipeline {
                 }
             }
         }
+        stage('Push the changed deployment file to Git') {
+            steps {
+                script {
+                    sh """
+                        git config --global user.name "iyalkeerthana"
+                        git config --global user.email "kavikeerthana2326@gmail.com"
+                        git add deployment.yml
+                        git commit -m "updated the deployment yml file"
+                    """
+                    withCredentials([gitUsernamePassword(credentialsId: 'GitHub', gitToolName: 'Default')]) {
+    // some block
+                    sh "git push https://github.com/iyalkeerthana/gitops_argocd_project.git main"
+                    }
+                }
+            }
+        }
     }
 }
-// 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
+// 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
