@@ -21,7 +21,7 @@ pipeline {
                 script {
                     git credentialsId: 'GitHub',
                     url: 'https://github.com/iyalkeerthana/gitops_argocd_project.git',
-                    branch: 'main'
+                    branch: 'main'   
                 }
             }
         }
